@@ -1,0 +1,104 @@
+Param([parameter(Mandatory=$true)] [String] $Command)
+
+function Get-Version {
+    Write-Output "  ____      _ _           _   _  ___ _     "
+    Write-Output " / ___|___ | | | ___  ___| |_| |/ (_) |_   "
+    Write-Output "| |   / _ \| | |/ _ \/ __| __| ' /| | __| "
+    Write-Output "| |__| (_) | | |  __/ (__| |_| . \| | |_  "
+    Write-Output " \____\___/|_|_|\___|\___|\__|_|\_\_|\__| "
+    Write-Output ""
+	Write-Output "Author: Nicholas Dhaeyer"
+    Write-Output "V2022-05-22"
+}
+
+function help {
+    <#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-05-22
+	Summary: Uses redeline to collect: Memory, Network, Services & Tasks
+    #>
+	Write-Output "Possible commands:"
+	Write-Output "Get-Version:	Shows the version of the script."
+	Write-Output "Get-Memory:	Runs a redline capture to get Memory, Network, Services & Tasks. Has a sleep time of 3 Min for the collection to run."
+	Write-Output "Rm-Collection:	Removes the Redline collection."
+	Write-Output "vol:		Runs Volatility 2.6 - WIP"
+	
+}
+
+function Get-Memory {
+    <#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-05-22
+	Summary: Uses redeline to collect: Memory, Network, Services & Tasks
+    #>
+	
+	# Download & Unpack:
+    Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Redline-Win-Memory-Network-Services-Tasks.zip -Destination MemCollect.zip
+
+	Expand-Archive MemCollect.zip -Force
+		
+	# Execution:
+	.\MemCollect\RunRedlineAudit.bat
+	
+	Start-Sleep -Seconds 180
+	
+	Compress-Archive -path .\MemCollect\Sessions\ .\collection.zip -CompressionLevel optimal
+	
+	# Cleanup:
+	Write-Output "Collection done. Cleaning UP ..."
+	Remove-Item -Recurse -Force MemCollect*
+	Write-Output "Please collect the file collection.zip. Run: getfile 'C:\programdata\microsoft\windows defender advanced threat protection\downloads\collection.zip'"
+	Write-Output "To clean up the collection file run: collectKit Rm-Collection"
+	
+	
+}
+
+function Rm-Collection {
+    <#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-05-22
+	Summary: Removes the collection file. should be run after the Get-* commands
+    #>	
+	Remove-Item collection.zip
+	Write-Output "Done!"
+	
+}
+
+function vol{
+    param (
+        [string[]]$command
+    )
+
+    <#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-05-22
+	Summary: Runs Volatility 2.6
+    #>	
+	if ([System.IO.File]::Exists("vol26.exe")){
+	#vol26.exe $command
+	}
+	else{
+	Write-Output "Downloading Volatility... Please try again!"
+	Write-Output "Function not implemented yet!"
+	#Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Volatility/vol26.exe	
+	}
+	
+}
+
+function Main {
+  $available = (Get-ChildItem function: | where CommandType -EQ "Function" | where Helpfile -EQ $null | where Source -EQ "" | where Name -NE "Main").Name
+  if ($available.Contains($Command)) {
+    &$Command
+  } else {
+    Write-Output "Valid remediation actions are:"
+    foreach ($c in $available) {
+      Write-Output $c
+    }
+  }
+}
+
+Main
