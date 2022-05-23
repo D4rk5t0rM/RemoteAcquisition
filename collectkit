@@ -7,50 +7,144 @@ function Get-Version {
     Write-Output "| |__| (_) | | |  __/ (__| |_| . \| | |_  "
     Write-Output " \____\___/|_|_|\___|\___|\__|_|\_\_|\__| "
     Write-Output ""
-	Write-Output "Author: Nicholas Dhaeyer"
-    Write-Output "V2022-05-22"
+	Write-Output "Author: Nicholas Dhaeyer - ndhaeyer@nviso.eu"
+    Write-Output "V2022-05-23"
 }
 
 function help {
     <#
     .NOTES
     Author: ndhaeyer@nviso.eu
-    Updated: 2022-05-22
-	Summary: Uses redeline to collect: Memory, Network, Services & Tasks
+    Updated: 2022-05-23
+	Summary: Gives you the instructions
     #>
+	Get-Version()
+	Write-Output ""
 	Write-Output "Possible commands:"
+	
 	Write-Output "Get-Version:	Shows the version of the script."
-	Write-Output "Get-Memory:	Runs a redline capture to get Memory, Network, Services & Tasks. Has a sleep time of 3 Min for the collection to run."
-	Write-Output "Rm-Collection:	Removes the Redline collection."
-	Write-Output "vol:		Runs Volatility 2.6 - WIP"
+	
+	Write-Output "RL-Win-Fast:	Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users. - CollectionTime +/-3Min"
+	Write-Output "RL-Win-Mem:	Runs a redline Windows script that gets Memory, Network, Services & Tasks. - CollectionTime +/-3Min"
+	
+	Write-Output "Redline:	Runs a redline capture of your choice. - Run RL-* functions instead of this!"
+	Write-Output "Rm-Collection:	Removes the collection.zip file used in all collections."
+	
+	Write-Output "Get-Mem:	Makes a Memdump. Can take longer depending on how much memory the system has."
+	
+	Write-Output "Get-Executions:	Gets Lists & gets the user's browser extentions. - Only Chrome supported (for now) "
+	
+	## TODO:
 	
 }
 
-function Get-Memory {
+function RL-Win-Fast {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-05-23
+	Summary: Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users.
+    #>
+	
+	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Basic-Fast.zip" -timeout 180
+
+}
+
+function RL-Win-Mem {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-05-23
+	Summary: Runs a redline Windows script that gets Memory, Network, Services & Tasks.
+    #>
+	
+	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Memory-Network-Services-Tasks.zip" -timeout 180
+}
+
+function Redline([string]$URL, [int]$timeout) {
     <#
     .NOTES
     Author: ndhaeyer@nviso.eu
-    Updated: 2022-05-22
-	Summary: Uses redeline to collect: Memory, Network, Services & Tasks
+    Updated: 2022-05-23
+	Summary: Uses redeline A redline script defined in a RL-* command. - Do not run this on it's own
     #>
 	
 	# Download & Unpack:
-    Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Redline-Win-Memory-Network-Services-Tasks.zip -Destination MemCollect.zip
+	Write-Output "Downloading $URL"
+	Start-BitsTransfer -Source $URL -Destination Redline.zip
 
-	Expand-Archive MemCollect.zip -Force
+	Expand-Archive Redline.zip -Force
 		
 	# Execution:
-	.\MemCollect\RunRedlineAudit.bat
+	.\Redline\RunRedlineAudit.bat
 	
-	Start-Sleep -Seconds 180
+	# Needed to collect the created sessions
+	Start-Sleep -Seconds $timeout
 	
-	Compress-Archive -path .\MemCollect\Sessions\ .\collection.zip -CompressionLevel optimal
+	Compress-Archive -path .\Redline\Sessions\ .\collection.zip -CompressionLevel optimal
 	
 	# Cleanup:
 	Write-Output "Collection done. Cleaning UP ..."
-	Remove-Item -Recurse -Force MemCollect*
+	Remove-Item -Recurse -Force Redline*
 	Write-Output "Please collect the file collection.zip. Run: getfile 'C:\programdata\microsoft\windows defender advanced threat protection\downloads\collection.zip'"
-	Write-Output "To clean up the collection file run: collectKit Rm-Collection"
+	Write-Output "To clean up the collection file run: <run collectKit Rm-Collection>"	
+}
+
+function Get-Mem {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-05-23
+	Summary: Gets a Memdump of the host.
+    #>	
+	$hostname = hostname
+	# Download:
+	Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Setup/7z.exe  -Destination 7z.exe
+	Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Setup/winpmem_mini_x64_rc2.exe -Destination winpmem.exe
+	Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Setup/7z.dll  -Destination 7z.dll
+			
+	# Create Memdump:
+	.\winpmem.exe .\$hostname-Memdump.raw
+	
+	#Zip if bigger than 3GB - limit of MDE getfile command
+	if((Get-Item .\$hostname-Memdump.raw).length -gt 3GB) {
+        .\7z.exe a -tzip .\$hostname-Memdump.zip .\$hostname-Memdump.raw
+		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\$hostname-Memdump.zip'>"
+    }
+	else{
+		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\$hostname-Memdump.raw'>"
+	}
+}
+
+function Get-Extentions {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-05-23
+	Summary: Gets Lists & gets the user's browser extentions.
+    #>	
+		
+	# Chrome
+	$chrome = @()
+	$chromeTmp = New-Object System.Collections.Generic.List[System.Object]
+	foreach($User in Get-ChildItem c:\Users\){
+		$chromeTmp.Add("C:\Users\$User\AppData\Local\Google\Chrome\User Data\Default\Extensions\")
+	}
+	
+	$chromeTmp.ToArray()
+	
+	foreach($path in $chromeTmp){
+		if(Test-Path -Path $path){
+			$chrome += $path
+		}
+	}
+	foreach($path in $chrome){
+		Get-ChildItem $path
+	}
+	
+	Compress-Archive -path $chrome .\Chrome-Extentions.zip -CompressionLevel optimal
+	Write-Output ""
+	Write-Output "Please collect the file .\Chrome-Extentions.zip Run: getfile 'C:\programdata\microsoft\windows defender advanced threat protection\downloads\Chrome-Extentions.zip'"
 	
 	
 }
@@ -62,30 +156,25 @@ function Rm-Collection {
     Updated: 2022-05-22
 	Summary: Removes the collection file. should be run after the Get-* commands
     #>	
-	Remove-Item collection.zip
-	Write-Output "Done!"
+	$hostname = hostname
 	
-}
+	if ([System.IO.File]::Exists(".\collection.zip")){
+	Remove-Item -Force .\collection.zip}
+	if ([System.IO.File]::Exists(".\7z.exe")){
+	Remove-Item -Force .\7z.exe}
+	if ([System.IO.File]::Exists(".\7z.dll")){
+	Remove-Item -Force .\7z.dll}
+	if ([System.IO.File]::Exists(".\winpmem.exe")){
+	Remove-Item -Force .\winpmem.exe}
+	if ([System.IO.File]::Exists(".\$hostname-Memdump.raw")){
+	Remove-Item -Force .\$hostname-Memdump.raw}
+	if ([System.IO.File]::Exists(".\$hostname-Memdump.zip")){
+	Remove-Item -Force .\$hostname-Memdump.zip}
+	if ([System.IO.File]::Exists(".\Chrome-Extentions.zip")){
+	Remove-Item -Force .\Chrome-Extentions.zip}
 
-function vol{
-    param (
-        [string[]]$command
-    )
-
-    <#
-    .NOTES
-    Author: ndhaeyer@nviso.eu
-    Updated: 2022-05-22
-	Summary: Runs Volatility 2.6
-    #>	
-	if ([System.IO.File]::Exists("vol26.exe")){
-	#vol26.exe $command
-	}
-	else{
-	Write-Output "Downloading Volatility... Please try again!"
-	Write-Output "Function not implemented yet!"
-	#Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Volatility/vol26.exe	
-	}
+	Write-Output "Done! following files are still on disk:"
+	Get-ChildItem ./
 	
 }
 
@@ -94,7 +183,7 @@ function Main {
   if ($available.Contains($Command)) {
     &$Command
   } else {
-    Write-Output "Valid remediation actions are:"
+    Write-Output "Valid Collection actions are:"
     foreach ($c in $available) {
       Write-Output $c
     }
