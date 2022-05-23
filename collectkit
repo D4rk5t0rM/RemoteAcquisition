@@ -30,7 +30,7 @@ function help {
 	Write-Output "Redline:	Runs a redline capture of your choice. - Run RL-* functions instead of this!"
 	Write-Output "Rm-Collection:	Removes the collection.zip file used in all collections."
 	
-	Write-Output "Get-Mem:	Makes a Memdump. Can take longer depending on how much memory the system has."
+	Write-Output "Get-Mem:	Makes a Memdump. Can take longer depending on how much memory the system has. 8GB RAM can take up to 15+ min."
 	
 	Write-Output "Get-Executions:	Gets Lists & gets the user's browser extentions. - Only Chrome supported (for now) "
 	
