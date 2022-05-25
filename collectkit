@@ -1,4 +1,7 @@
-Param([parameter(Mandatory=$true)] [String] $Command)
+Param(
+	[parameter(Position = 0)] [String] $Command,
+	[parameter(Position = 1)] [String] $arg1
+	)
 
 function Get-Version {
     Write-Output "  ____      _ _           _   _  ___ _     "
@@ -15,22 +18,22 @@ function help {
     <#
     .NOTES
     Author: ndhaeyer@nviso.eu
-    Updated: 2022-05-23
+    Updated: 2022-05-25
 	Summary: Gives you the instructions
     #>
-	Get-Version()
 	Write-Output ""
 	Write-Output "Possible commands:"
 	
 	Write-Output "Get-Version:	Shows the version of the script."
 	
-	Write-Output "RL-Win-Fast:	Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users. - CollectionTime +/-3Min"
-	Write-Output "RL-Win-Mem:	Runs a redline Windows script that gets Memory, Network, Services & Tasks. - CollectionTime +/-3Min"
+	Write-Output "RL-Win-Basic:	Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users. - collection can take longer depending on how much calculations are needed."
+	Write-Output "RL-Win-Mem-Fast:	Runs a redline Windows script that gets Memory, Network, Services & Tasks. - collection can take longer depending on how much calculations are needed."
 	
 	Write-Output "Redline:	Runs a redline capture of your choice. - Run RL-* functions instead of this!"
 	Write-Output "Rm-Collection:	Removes the collection.zip file used in all collections."
 	
 	Write-Output "Get-Mem:	Makes a Memdump. Can take longer depending on how much memory the system has. 8GB RAM can take up to 15+ min."
+	Write-Output "Get-Proc:	Makes a dump of a process using procdump. Usage: <run collectkit 'Get-Proc <procID|procName>'>"
 	
 	Write-Output "Get-Executions:	Gets Lists & gets the user's browser extentions. - Only Chrome supported (for now) "
 	
@@ -38,36 +41,40 @@ function help {
 	
 }
 
-function RL-Win-Fast {
+function RL-Win-Basic {
 	<#
     .NOTES
     Author: ndhaeyer@nviso.eu
-    Updated: 2022-05-23
+    Updated: 2022-05-25
 	Summary: Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users.
     #>
 	
-	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Basic-Fast.zip" -timeout 180
+	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Basic.zip"
 
 }
 
-function RL-Win-Mem {
+function RL-Win-Mem-Fast {
 	<#
     .NOTES
     Author: ndhaeyer@nviso.eu
-    Updated: 2022-05-23
+    Updated: 2022-05-25
 	Summary: Runs a redline Windows script that gets Memory, Network, Services & Tasks.
     #>
 	
-	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Memory-Network-Services-Tasks.zip" -timeout 180
+	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Memory-Fast.zip"
 }
 
-function Redline([string]$URL, [int]$timeout) {
+function Redline([string]$URL) {
     <#
     .NOTES
     Author: ndhaeyer@nviso.eu
-    Updated: 2022-05-23
+    Updated: 2022-05-25
 	Summary: Uses redeline A redline script defined in a RL-* command. - Do not run this on it's own
     #>
+	
+	
+	
+	
 	
 	# Download & Unpack:
 	Write-Output "Downloading $URL"
@@ -76,16 +83,13 @@ function Redline([string]$URL, [int]$timeout) {
 	Expand-Archive Redline.zip -Force
 		
 	# Execution:
-	.\Redline\RunRedlineAudit.bat
+	start .\Redline\RunRedlineAudit.bat -Wait
 	
 	# Needed to collect the created sessions
-	Start-Sleep -Seconds $timeout
+	#Start-Sleep -Seconds $timeout
 	
 	Compress-Archive -path .\Redline\Sessions\ .\collection.zip -CompressionLevel optimal
 	
-	# Cleanup:
-	Write-Output "Collection done. Cleaning UP ..."
-	Remove-Item -Recurse -Force Redline*
 	Write-Output "Please collect the file collection.zip. Run: getfile 'C:\programdata\microsoft\windows defender advanced threat protection\downloads\collection.zip'"
 	Write-Output "To clean up the collection file run: <run collectKit Rm-Collection>"	
 }
@@ -113,6 +117,33 @@ function Get-Mem {
     }
 	else{
 		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\$hostname-Memdump.raw'>"
+	}
+}
+
+function Get-Proc {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-05-25
+	Summary: Dumps a process according to procdump arguments
+    #>	
+	# Download:
+	Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Setup/procdump64.exe -Destination procdump64.exe
+	if ([System.IO.File]::Exists(".\7z.exe")){
+		Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Setup/7z.exe  -Destination 7z.exe}
+	if ([System.IO.File]::Exists(".\7z.dll")){
+		Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Setup/7z.dll  -Destination 7z.dll}
+	
+	# Create ProcDump:
+	.\procdump64.exe $arg1 -o proc-$arg1.dmp /accepteula
+	
+	#Zip if bigger than 3GB - limit of MDE getfile command
+	if((Get-Item .\proc-$arg1.dmp).length -gt 200MB) {
+        .\7z.exe a -tzip .\proc-$arg1.zip .\proc-$arg1.dmp
+		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\proc-$arg1.zip'>"
+    }
+	else{
+		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\proc-$arg1.dmp'>"
 	}
 }
 
@@ -156,23 +187,8 @@ function Rm-Collection {
     Updated: 2022-05-22
 	Summary: Removes the collection file. should be run after the Get-* commands
     #>	
-	$hostname = hostname
 	
-	if ([System.IO.File]::Exists(".\collection.zip")){
-	Remove-Item -Force .\collection.zip}
-	if ([System.IO.File]::Exists(".\7z.exe")){
-	Remove-Item -Force .\7z.exe}
-	if ([System.IO.File]::Exists(".\7z.dll")){
-	Remove-Item -Force .\7z.dll}
-	if ([System.IO.File]::Exists(".\winpmem.exe")){
-	Remove-Item -Force .\winpmem.exe}
-	if ([System.IO.File]::Exists(".\$hostname-Memdump.raw")){
-	Remove-Item -Force .\$hostname-Memdump.raw}
-	if ([System.IO.File]::Exists(".\$hostname-Memdump.zip")){
-	Remove-Item -Force .\$hostname-Memdump.zip}
-	if ([System.IO.File]::Exists(".\Chrome-Extentions.zip")){
-	Remove-Item -Force .\Chrome-Extentions.zip}
-
+	Remove-Item -Recurse -Force *
 	Write-Output "Done! following files are still on disk:"
 	Get-ChildItem ./
 	
