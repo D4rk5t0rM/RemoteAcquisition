@@ -84,10 +84,10 @@ function Redline([string]$URL) {
 	# Needed to collect the created sessions
 	#Start-Sleep -Seconds $timeout
 	
-	Compress-Archive -path .\Redline\Sessions\ .\collection.zip -CompressionLevel optimal
+	Compress-Archive -path .\Redline\Sessions\ .\collection.zip -CompressionLevel optimal -Force
 	
 	Write-Output "Please collect the file collection.zip. Run: getfile 'C:\programdata\microsoft\windows defender advanced threat protection\downloads\collection.zip'"
-	Write-Output "To clean up the collection file run: <run collectKit Rm-Collection>"	
+	Write-Output "To clean up the collection file run: <run collectkit Rm-Collection>"	
 }
 
 function Get-Mem {
