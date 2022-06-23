@@ -17,6 +17,8 @@ function help {
     Updated: 2022-05-25
 	Summary: Gives you the instructions
     #>
+	Write-Output "To run. Use the following command:"
+	Write-Output "PowerShell -ep bypass ./collectkit [command]"
 	Write-Output ""
 	Write-Output "Possible commands:"
 	
@@ -82,7 +84,7 @@ function Redline([string]$URL) {
 	
 	Compress-Archive -path .\Redline\Sessions\ .\collection.zip -CompressionLevel optimal -Force
 	
-	Write-Output "Please collect the file collection.zip. Run: getfile 'C:\programdata\microsoft\windows defender advanced threat protection\downloads\collection.zip'"
+	Write-Output "Please collect the file collection.zip. Run: getfile '$(pwd)\collection.zip'"
 	Write-Output "To clean up the collection file run: <run collectkit Rm-Collection>"	
 }
 
@@ -105,10 +107,10 @@ function Get-Mem {
 	#Zip if bigger than 3GB - limit of MDE getfile command
 	if((Get-Item .\$hostname-Memdump.raw).length -gt 3GB) {
         .\7z.exe a -tzip .\$hostname-Memdump.zip .\$hostname-Memdump.raw
-		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\$hostname-Memdump.zip'>"
+		Write-Output "run command: <getfile '$(pwd)\$hostname-Memdump.zip'>"
     }
 	else{
-		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\$hostname-Memdump.raw'>"
+		Write-Output "run command: <getfile '$(pwd)\$hostname-Memdump.raw'>"
 	}
 }
 
@@ -132,10 +134,10 @@ function Get-Proc {
 	#Zip if bigger than 3GB - limit of MDE getfile command
 	if((Get-Item .\proc-$arg1.dmp).length -gt 200MB) {
         .\7z.exe a -tzip .\proc-$arg1.zip .\proc-$arg1.dmp
-		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\proc-$arg1.zip'>"
+		Write-Output "run command: <getfile '$(pwd)\proc-$arg1.zip'>"
     }
 	else{
-		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\proc-$arg1.dmp'>"
+		Write-Output "run command: <getfile '$(pwd)\proc-$arg1.dmp'>"
 	}
 }
 
@@ -167,7 +169,7 @@ function Get-Extentions {
 	
 	Compress-Archive -path $chrome .\Chrome-Extentions.zip -CompressionLevel optimal
 	Write-Output ""
-	Write-Output "Please collect the file .\Chrome-Extentions.zip Run: getfile 'C:\programdata\microsoft\windows defender advanced threat protection\downloads\Chrome-Extentions.zip'"
+	Write-Output "Please collect the file .\Chrome-Extentions.zip Run: getfile '$(pwd)\Chrome-Extentions.zip'"
 	
 	
 }
