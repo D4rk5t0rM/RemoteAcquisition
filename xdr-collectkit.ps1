@@ -7,7 +7,7 @@ function Get-Version {
     Write-Output " \____\___/|_|_|\___|\___|\__|_|\_\_|\__| "
     Write-Output ""
 	Write-Output "Author: Nicholas Dhaeyer - ndhaeyer@nviso.eu"
-    Write-Output "V2022-05-25"
+    Write-Output "V2022-09-09"
 }
 
 function help {
@@ -17,8 +17,8 @@ function help {
     Updated: 2022-05-25
 	Summary: Gives you the instructions
     #>
+	Write-Output "Usage: 'PowerShell -ep bypass ./collectkit [command] [argument]'"
 	Write-Output "To run. Use the following command:"
-	Write-Output "PowerShell -ep bypass ./collectkit [command]"
 	Write-Output ""
 	Write-Output "Possible commands:"
 	
@@ -35,6 +35,8 @@ function help {
 	
 	Write-Output "Get-Executions:	Gets Lists & gets the user's browser extentions. - Only Chrome supported (for now) "
 	
+	Write-Output "Remediate-Item:	removes a given file/folder by using 'Remove-Item -Recurse -Force [dir/file]'"
+	
 	## TODO:
 	
 }
@@ -45,6 +47,7 @@ function RL-Win-Basic {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-25
 	Summary: Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users.
+	Usage: 'PowerShell -ep bypass ./collectkit RL-Win-Basic'
     #>
 	
 	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Basic.zip"
@@ -57,6 +60,7 @@ function RL-Win-Mem-Fast {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-25
 	Summary: Runs a redline Windows script that gets Memory, Network, Services & Tasks.
+	Usage: 'PowerShell -ep bypass ./collectkit RL-Win-Mem-Fast'
     #>
 	
 	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Memory-Fast.zip"
@@ -68,6 +72,7 @@ function Redline([string]$URL) {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-25
 	Summary: Uses redeline A redline script defined in a RL-* command. - Do not run this on it's own
+	Usage: 'PowerShell -ep bypass ./collectkit RL-[Redline Script]'
     #>
 	
 	# Download & Unpack:
@@ -94,6 +99,7 @@ function Get-Mem {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-23
 	Summary: Gets a Memdump of the host.
+	Usage: 'PowerShell -ep bypass ./collectkit Get-Mem'
     #>	
 	$hostname = hostname
 	# Download:
@@ -120,6 +126,7 @@ function Get-Proc {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-25
 	Summary: Dumps a process according to procdump arguments
+	Usage: 'PowerShell -ep bypass ./collectkit Get-Proc [process name/id]'
     #>	
 	# Download:
 	Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Setup/procdump64.exe -Destination procdump64.exe
@@ -147,6 +154,7 @@ function Get-Extentions {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-23
 	Summary: Gets Lists & gets the user's browser extentions.
+	Usage: 'PowerShell -ep bypass ./collectkit Get-Extentions'
     #>	
 		
 	# Chrome
@@ -174,12 +182,32 @@ function Get-Extentions {
 	
 }
 
+
+# Remediation actions
+function Remediate-Item {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-09-09
+	Summary: emoves a given file/folder by using 'Remove-Item -Recurse -Force [dir/file]' 
+	Usage: 'PowerShell -ep bypass ./collectkit rm [dir/file]' full path is required
+    #>
+	
+	Remove-Item -Recurse -Force $Arg1
+	Write-Output "Executed the command"
+	Write-Output "Files left on disk: ...."
+	Get-ChildItem $(Split-Path -Path $Arg1)
+
+}
+
+# Cleanup:
 function Rm-Collection {
     <#
     .NOTES
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-22
 	Summary: Removes the collection file. should be run after the Get-* commands
+	Usage: 'PowerShell -ep bypass ./collectkit Rm-Collection'
     #>	
 	
 	Remove-Item -Recurse -Force *
@@ -188,16 +216,16 @@ function Rm-Collection {
 	
 }
 
-function Main {
-  $available = (Get-ChildItem function: | where CommandType -EQ "Function" | where Helpfile -EQ $null | where Source -EQ "" | where Name -NE "Main").Name
-  if ($available.Contains($Command)) {
-    &$Command
-  } else {
-    Write-Output "Valid Collection actions are:"
-    foreach ($c in $available) {
-      Write-Output $c
-    }
-  }
+Function Invoke-CollectKit {
+	$available = (Get-ChildItem function: | Where-Object CommandType -EQ "Function" | Where-Object Helpfile -EQ $null | Where-Object Source -EQ "" | Where-Object Name -NE "Invoke-CollectKit").Name
+	if ($available.Contains($Command)) {
+		&$Command
+	} else {
+		Write-Output "Valid remediation actions are:"
+		ForEach ($c in $available) {
+			Write-Output $c
+		}
+	}
 }
 
-Main
+Invoke-CollectKit

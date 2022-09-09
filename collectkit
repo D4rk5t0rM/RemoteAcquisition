@@ -1,6 +1,6 @@
 Param(
 	[parameter(Position = 0)] [String] $Command,
-	[parameter(Position = 1)] [String] $arg1
+	[parameter(Position = 1)] [String] $Arg1
 	)
 
 function Get-Version {
@@ -11,7 +11,7 @@ function Get-Version {
     Write-Output " \____\___/|_|_|\___|\___|\__|_|\_\_|\__| "
     Write-Output ""
 	Write-Output "Author: Nicholas Dhaeyer - ndhaeyer@nviso.eu"
-    Write-Output "V2022-05-25"
+    Write-Output "V2022-09-09"
 }
 
 function help {
@@ -21,6 +21,8 @@ function help {
     Updated: 2022-05-25
 	Summary: Gives you the instructions
     #>
+	Write-Output "Usage: 'run collectkit [Command] [argument]'"
+	
 	Write-Output ""
 	Write-Output "Possible commands:"
 	
@@ -37,6 +39,8 @@ function help {
 	
 	Write-Output "Get-Executions:	Gets Lists & gets the user's browser extentions. - Only Chrome supported (for now) "
 	
+	Write-Output "Remediate-Item:	removes a given file/folder by using 'Remove-Item -Recurse -Force [dir/file]'"
+	
 	## TODO:
 	
 }
@@ -47,6 +51,7 @@ function RL-Win-Basic {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-25
 	Summary: Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users.
+	Usage: 'run collectkit RL-Win-Basic'
     #>
 	
 	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Basic.zip"
@@ -59,6 +64,7 @@ function RL-Win-Mem-Fast {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-25
 	Summary: Runs a redline Windows script that gets Memory, Network, Services & Tasks.
+	Usage: 'run collectkit RL-Win-Mem-Fast'
     #>
 	
 	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Memory-Fast.zip"
@@ -70,6 +76,7 @@ function Redline([string]$URL) {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-25
 	Summary: Uses redeline A redline script defined in a RL-* command. - Do not run this on it's own
+	Usage: 'run collectkit RL-[Redline Script]'
     #>
 	
 	# Download & Unpack:
@@ -86,7 +93,7 @@ function Redline([string]$URL) {
 	
 	Compress-Archive -path .\Redline\Sessions\ .\collection.zip -CompressionLevel optimal -Force
 	
-	Write-Output "Please collect the file collection.zip. Run: getfile 'C:\programdata\microsoft\windows defender advanced threat protection\downloads\collection.zip'"
+	Write-Output "Please collect the file collection.zip. Run: getfile '$(pwd)\collection.zip'"
 	Write-Output "To clean up the collection file run: <run collectkit Rm-Collection>"	
 }
 
@@ -96,6 +103,7 @@ function Get-Mem {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-23
 	Summary: Gets a Memdump of the host.
+	Usage: 'run collectkit Get-Mem'
     #>	
 	$hostname = hostname
 	# Download:
@@ -109,10 +117,10 @@ function Get-Mem {
 	#Zip if bigger than 3GB - limit of MDE getfile command
 	if((Get-Item .\$hostname-Memdump.raw).length -gt 3GB) {
         .\7z.exe a -tzip .\$hostname-Memdump.zip .\$hostname-Memdump.raw
-		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\$hostname-Memdump.zip'>"
+		Write-Output "run command: <getfile '$(pwd)\$hostname-Memdump.zip'>"
     }
 	else{
-		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\$hostname-Memdump.raw'>"
+		Write-Output "run command: <getfile '$(pwd)\$hostname-Memdump.raw'>"
 	}
 }
 
@@ -122,6 +130,7 @@ function Get-Proc {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-25
 	Summary: Dumps a process according to procdump arguments
+	Usage: 'run collectkit "Get-Proc [process name/id]"'
     #>	
 	# Download:
 	Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Setup/procdump64.exe -Destination procdump64.exe
@@ -131,15 +140,15 @@ function Get-Proc {
 		Start-BitsTransfer -Source https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/Setup/7z.dll  -Destination 7z.dll}
 	
 	# Create ProcDump:
-	.\procdump64.exe $arg1 -ma -o proc-$arg1.dmp /accepteula
+	.\procdump64.exe $Arg1 -ma -o proc-$Arg1.dmp /accepteula
 	
 	#Zip if bigger than 3GB - limit of MDE getfile command
-	if((Get-Item .\proc-$arg1.dmp).length -gt 200MB) {
-        .\7z.exe a -tzip .\proc-$arg1.zip .\proc-$arg1.dmp
-		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\proc-$arg1.zip'>"
+	if((Get-Item .\proc-$Arg1.dmp).length -gt 200MB) {
+        .\7z.exe a -tzip .\proc-$Arg1.zip .\proc-$Arg1.dmp
+		Write-Output "run command: <getfile '$(pwd)\proc-$Arg1.zip'>"
     }
 	else{
-		Write-Output "run command: <getfile 'C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\proc-$arg1.dmp'>"
+		Write-Output "run command: <getfile '$(pwd)\proc-$Arg1.dmp'>"
 	}
 }
 
@@ -149,6 +158,7 @@ function Get-Extentions {
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-23
 	Summary: Gets Lists & gets the user's browser extentions.
+	Usage: 'run collectkit Get-Extentions'
     #>	
 		
 	# Chrome
@@ -171,17 +181,35 @@ function Get-Extentions {
 	
 	Compress-Archive -path $chrome .\Chrome-Extentions.zip -CompressionLevel optimal
 	Write-Output ""
-	Write-Output "Please collect the file .\Chrome-Extentions.zip Run: getfile 'C:\programdata\microsoft\windows defender advanced threat protection\downloads\Chrome-Extentions.zip'"
+	Write-Output "Please collect the file .\Chrome-Extentions.zip Run: getfile '$(pwd)\Chrome-Extentions.zip'"
 	
 	
 }
 
+
+# Remediation actions
+function Remediate-Item {
+    <#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-09-09
+	Summary: emoves a given file/folder by using 'Remove-Item -Recurse -Force [dir/file]' 
+	Usage: 'run collectkit "rm [dir/file]"' full path is required. full path with spaces, use "rm '[path]'"
+    #>
+	Remove-Item -Recurse -Force $Arg1
+	Write-Output "Executed the command"
+	Write-Output "Files left on disk: ...."
+	Get-ChildItem $(Split-Path -Path $Arg1)
+}
+
+# Cleanup:
 function Rm-Collection {
     <#
     .NOTES
     Author: ndhaeyer@nviso.eu
     Updated: 2022-05-22
 	Summary: Removes the collection file. should be run after the Get-* commands
+	Usage: 'run collectkit Rm-Collection'
     #>	
 	
 	Remove-Item -Recurse -Force *
@@ -190,16 +218,17 @@ function Rm-Collection {
 	
 }
 
-function Main {
-  $available = (Get-ChildItem function: | where CommandType -EQ "Function" | where Helpfile -EQ $null | where Source -EQ "" | where Name -NE "Main").Name
-  if ($available.Contains($Command)) {
-    &$Command
-  } else {
-    Write-Output "Valid Collection actions are:"
-    foreach ($c in $available) {
-      Write-Output $c
-    }
-  }
+
+Function Invoke-CollectKit {
+	$available = (Get-ChildItem function: | Where-Object CommandType -EQ "Function" | Where-Object Helpfile -EQ $null | Where-Object Source -EQ "" | Where-Object Name -NE "Invoke-CollectKit").Name
+	if ($available.Contains($Command)) {
+		&$Command
+	} else {
+		Write-Output "Valid remediation actions are:"
+		ForEach ($c in $available) {
+			Write-Output $c
+		}
+	}
 }
 
-Main
+Invoke-CollectKit
