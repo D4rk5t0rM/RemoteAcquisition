@@ -11,7 +11,7 @@ function Get-Version {
     Write-Output " \____\___/|_|_|\___|\___|\__|_|\_\_|\__| "
     Write-Output ""
 	Write-Output "Author: Nicholas Dhaeyer - ndhaeyer@nviso.eu"
-    Write-Output "V2022-09-09"
+    Write-Output "V2022-13-09"
 }
 
 function help {
@@ -21,26 +21,37 @@ function help {
     Updated: 2022-05-25
 	Summary: Gives you the instructions
     #>
+	Get-Version	
+	
+	Write-Output ""
+	Write-Output ""
 	Write-Output "Usage: 'run collectkit [Command] [argument]'"
 	
 	Write-Output ""
 	Write-Output "Possible commands:"
-	
-	Write-Output "Get-Version:	Shows the version of the script."
-	
+	Write-Output "------------------"
+	Write-Output ""
+	Write-Output "===== COLLECTION ====="
+	Write-Output "- Redline Captures -"
 	Write-Output "RL-Win-Basic:	Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users. - collection can take longer depending on how much calculations are needed."
 	Write-Output "RL-Win-Mem-Fast:	Runs a redline Windows script that gets Memory, Network, Services & Tasks. - collection can take longer depending on how much calculations are needed."
 	
-	Write-Output "Redline:	Runs a redline capture of your choice. - Run RL-* functions instead of this!"
-	Write-Output "Rm-Collection:	Removes the collection.zip file used in all collections."
-	
+	Write-Output ""
+	Write-Output "- Memory Captures -"
 	Write-Output "Get-Mem:	Makes a Memdump. Can take longer depending on how much memory the system has. 8GB RAM can take up to 15+ min."
 	Write-Output "Get-Proc:	Makes a dump of a process using procdump. Usage: <run collectkit 'Get-Proc <procID|procName>'>"
 	
-	Write-Output "Get-Executions:	Gets Lists & gets the user's browser extentions. - Only Chrome supported (for now) "
+	Write-Output ""
+	Write-Output "- Browser Captures -"
+	Write-Output "Get-Extentions:	Gets Lists & gets the user's browser extentions. - Only Chrome supported (for now) "
 	
+	Write-Output ""
+	Write-Output "===== REMEDIATION ====="
 	Write-Output "Remediate-Item:	removes a given file/folder by using 'Remove-Item -Recurse -Force [dir/file]'"
 	
+	Write-Output ""
+	Write-Output "===== CLEANUP ====="
+	Write-Output "Rm-Collection:	Removes the collection.zip file used in all collections."
 	## TODO:
 	
 }
