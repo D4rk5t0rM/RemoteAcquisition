@@ -6,8 +6,8 @@ function Get-Version {
     Write-Output "| |__| (_) | | |  __/ (__| |_| . \| | |_  "
     Write-Output " \____\___/|_|_|\___|\___|\__|_|\_\_|\__| "
     Write-Output ""
-	Write-Output "Author: Nicholas Dhaeyer - ndhaeyer@nviso.eu"
-    Write-Output "V2022-09-09"
+	Write-Output "Author: Nicholas Dhaeyer - ndhaeyer@nviso.eu - @DhaeyerWolf"
+    Write-Output "V2022-13-09"
 }
 
 function help {
