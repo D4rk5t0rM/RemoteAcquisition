@@ -56,6 +56,7 @@ function help {
 	
 }
 
+# Redline Captures
 function RL-Win-Basic {
 	<#
     .NOTES
@@ -80,6 +81,9 @@ function RL-Win-Mem-Fast {
 	
 	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Memory-Fast.zip"
 }
+
+
+# Collections
 
 function Redline([string]$URL) {
     <#
@@ -196,6 +200,34 @@ function Get-Extentions {
 	
 	
 }
+
+function Get-BrowserFiles {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-10-05
+	Summary: Gets Lists & gets the user's browser extentions.
+	Usage: 'run collectkit Get-Extentions'
+    #>	
+	
+	# Setup
+	Start-BitsTransfer -Source https://raw.githubusercontent.com/D4rk5t0rM/RemoteAcquisition/main/Setup/CollectBrowserfiles.cmd -Destination CollectBrowserfiles.cmd
+	
+	# Execution
+	cmd.exe /c CollectBrowserfiles.cmd
+	
+	Compress-Archive -path .\Browser_Files .\Browser_Files.zip -CompressionLevel optimal
+	
+	# Cleanup
+	Remove-Item -Recurse -Force .\Browser_Files
+	
+	
+	Write-Output "Please collect the file .\Browser_Files.zip Run: getfile '$(pwd)\Browser_Files.zip'"
+	
+}
+
+
+# TODO: zip specified folder & download.
 
 
 # Remediation actions
