@@ -11,7 +11,7 @@ function Get-Version {
     Write-Output " \____\___/|_|_|\___|\___|\__|_|\_\_|\__| "
     Write-Output ""
 	Write-Output "Author: Nicholas Dhaeyer - ndhaeyer@nviso.eu - @DhaeyerWolf"
-    Write-Output "V2022-13-09"
+    Write-Output "V2022-10-05"
 }
 
 function help {
