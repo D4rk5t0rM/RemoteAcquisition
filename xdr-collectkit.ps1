@@ -7,7 +7,7 @@ function Get-Version {
     Write-Output " \____\___/|_|_|\___|\___|\__|_|\_\_|\__| "
     Write-Output ""
 	Write-Output "Author: Nicholas Dhaeyer - ndhaeyer@nviso.eu - @DhaeyerWolf"
-    Write-Output "V2022-13-09"
+    Write-Output "V2022-10-05"
 }
 
 function help {
@@ -40,6 +40,13 @@ function help {
 	Write-Output ""
 	Write-Output "- Browser Captures -"
 	Write-Output "Get-Extentions:	Gets Lists & gets the user's browser extentions. - Only Chrome supported (for now) "
+	Write-Output "Get-BrowserFiles:	Get all files stored by a browser currently supported: IE, MS Edge, Chrome, Firefox "
+	
+	
+	Write-Output ""
+	Write-Output "- List Files -"
+	Write-Output "List-DefaultFolder:	Lists the files in the folder C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\"
+	Write-Output "Get-Folder:	Zips the specified folder and makes it available for download (default MDE download size is max 3GB)"
 	
 	Write-Output ""
 	Write-Output "===== REMEDIATION ====="
@@ -50,6 +57,27 @@ function help {
 	Write-Output "Rm-Collection:	Removes the collection.zip file used in all collections."
 	## TODO:
 	
+	List-DefaultFolder
+}
+
+# Default folder listing display
+function List-DefaultFolder{
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-10-05
+	Summary: Lists the files in the folder C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\
+	Usage: 'run collectkit List-DefaultFolder'
+    #>
+	Write-Output ""
+	Write-Output ""
+	Write-Output "
+	+++++++++++++++++++++++++++++++++++++++++++++
+	+   Current Files in the default folder:    +
+	+ C:\ProgramData\Microsoft\Windows Defender +
+	+   Advanced Threat Protection\Downloads\   +
+	+++++++++++++++++++++++++++++++++++++++++++++"
+	Get-ChildItem ./
 }
 
 function RL-Win-Basic {
@@ -102,6 +130,8 @@ function Redline([string]$URL) {
 	
 	Write-Output "Please collect the file collection.zip. Run: getfile '$(pwd)\collection.zip'"
 	Write-Output "To clean up the collection file run: <run collectkit Rm-Collection>"	
+	
+	List-DefaultFolder
 }
 
 function Get-Mem {
@@ -129,6 +159,8 @@ function Get-Mem {
 	else{
 		Write-Output "run command: <getfile '$(pwd)\$hostname-Memdump.raw'>"
 	}
+	
+	List-DefaultFolder
 }
 
 function Get-Proc {
@@ -157,6 +189,8 @@ function Get-Proc {
 	else{
 		Write-Output "run command: <getfile '$(pwd)\proc-$arg1.dmp'>"
 	}
+	
+	List-DefaultFolder
 }
 
 function Get-Extentions {
@@ -190,9 +224,55 @@ function Get-Extentions {
 	Write-Output ""
 	Write-Output "Please collect the file .\Chrome-Extentions.zip Run: getfile '$(pwd)\Chrome-Extentions.zip'"
 	
-	
+	List-DefaultFolder
 }
 
+function Get-BrowserFiles {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-10-05
+	Summary: Gets a ZIP file of all files of a browser on a system
+	Usage: 'PowerShell -ep bypass ./collectkit Get-BrowserFiles'
+    #>	
+	
+	# Setup
+	Start-BitsTransfer -Source https://raw.githubusercontent.com/D4rk5t0rM/RemoteAcquisition/main/Setup/CollectBrowserfiles.cmd -Destination CollectBrowserfiles.cmd
+	
+	# Execution
+	cmd.exe /c CollectBrowserfiles.cmd
+	
+	Compress-Archive -path .\Browser_Files .\Browser_Files.zip -CompressionLevel optimal
+	
+	# Cleanup
+	Remove-Item -Recurse -Force .\Browser_Files 
+	Remove-Item -Recurse -Force .\CollectBrowserfiles.cmd
+	
+	
+	Write-Output "Please collect the file .\Browser_Files.zip Run: getfile '$(pwd)\Browser_Files.zip'"
+	
+	List-DefaultFolder
+}
+
+
+function Get-Folder {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-10-05
+	Summary: Gets Lists & gets the user's browser extentions.
+	Usage: PowerShell -ep bypass ./collectkit "Get-Folder '<folderpath>'"
+    #>	
+	
+	$OutputFile = $Arg1.Split("\")[-1]
+	$OutputFile
+	
+	Compress-Archive -path $Arg1 .\"$OutputFile".zip -CompressionLevel optimal
+	
+	Write-Output "Please collect the file .\$OutputFile.zip Run: getfile '$(pwd)\$OutputFile.zip'"
+	
+	List-DefaultFolder
+}
 
 # Remediation actions
 function Remediate-Item {
@@ -223,7 +303,8 @@ function Rm-Collection {
 	
 	Remove-Item -Recurse -Force *
 	Write-Output "Done! following files are still on disk:"
-	Get-ChildItem ./
+	
+	List-DefaultFolder
 	
 }
 
