@@ -30,7 +30,7 @@ function help {
 	Write-Output "===== COLLECTION ====="
 	Write-Output "- Redline Captures -"
 	Write-Output "RL-Win-Basic:	Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users. - collection can take longer depending on how much calculations are needed."
-	Write-Output "RL-Win-Mem-Fast:	Runs a redline Windows script that gets Memory, Network, Services & Tasks. - collection can take longer depending on how much calculations are needed."
+	Write-Output "RL-Win-Mem-Fast:Runs a redline Windows script that gets Memory, Network, Services & Tasks. - collection can take longer depending on how much calculations are needed."
 	
 	Write-Output ""
 	Write-Output "- Memory Captures -"
@@ -45,7 +45,7 @@ function help {
 	
 	Write-Output ""
 	Write-Output "- List Files -"
-	Write-Output "List-DefaultFolder:	Lists the files in the folder C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\"
+	Write-Output "List-DefaultFolder:Lists the files in the folder C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\"
 	Write-Output "Get-Folder:	Zips the specified folder and makes it available for download (default MDE download size is max 3GB)"
 	
 	Write-Output ""
