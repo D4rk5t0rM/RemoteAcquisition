@@ -49,6 +49,14 @@ function help {
 	Write-Output "Get-Folder:	Zips the specified folder and makes it available for download (default MDE download size is max 3GB)"
 	
 	Write-Output ""
+	Write-Output "- Other collections -"
+	Write-Output "Get-Basic-Info:
+			- runs a modified version of mamun-sec dfirt tool
+			- runs nov3mb3r's trident tool
+			- Gets PowerShell history of all users "
+	
+	
+	Write-Output ""
 	Write-Output "===== REMEDIATION ====="
 	Write-Output "Remediate-Item:	removes a given file/folder by using 'Remove-Item -Recurse -Force [dir/file]'"
 	
@@ -273,6 +281,80 @@ function Get-Folder {
 	
 	List-DefaultFolder
 }
+
+# Run external scripts
+function Get-Basic-Info {
+	<#
+    .NOTES
+    Author: ndhaeyer@nviso.eu
+    Updated: 2022-10-05
+	Summary:- runs a modified version of mamun-sec dfirt tool
+			- runs nov3mb3r's trident tool
+			- Gets PowerShell history of all users
+	Usage: 'run collectkit Get-Basic-Info"
+    #>
+	
+	# Default setup
+	mkdir .\Basic-Info
+	
+	
+	# dfirt
+	## Setup
+	Start-BitsTransfer -Source https://raw.githubusercontent.com/D4rk5t0rM/Forensics-tools/main/.scripts/dfirt.ps1 -Destination .\dfirt.ps1
+	
+	## Execution
+	PowerShell -ep bypass .\dfirt.ps1
+	
+	## prepare export
+	Move-Item .\report.txt .\Basic-Info\dfirt_$(hostname).txt
+	Get-Content .\Basic-Info\dfirt_$(hostname).txt
+	
+	
+	# Trident
+	## Setup
+	Start-BitsTransfer -Source https://raw.githubusercontent.com/nov3mb3r/trident/main/trident.ps1 -Destination .\trident.ps1
+	
+	## Execution
+	PowerShell -ep bypass .\trident.ps1
+	
+	# prepare export
+	Move-Item .\trident_$(hostname).txt .\Basic-Info\trident_$(hostname).txt
+	Get-Content .\Basic-Info\trident_$(hostname).txt
+	
+	
+	# Powershell History
+	foreach ($u in $(get-localuser | % {$_.Name})){
+			Copy-Item c:\Users\$u\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt .\Basic-Info\"$u"_PowershellHistory.txt 2> .\error.txt
+			
+			Write-Output "
+			+++++++++++++++++++++++++++++
+			+  Powerhsell History for:  +
+			+            $u     
+			+++++++++++++++++++++++++++++
+			"
+			Get-Content .\Basic-Info\"$u"_PowershellHistory.txt
+		}
+	
+	
+	# --------------------
+	
+	# Collection
+	Compress-Archive -path .\Basic-Info .\Basic-Info.zip -CompressionLevel optimal
+	
+	Write-Output "Please collect the file .\Basic-Info.zip Run: getfile '$(pwd)\Basic-Info.zip'"
+	
+	
+	
+	# Cleanup
+	Remove-Item -Recurse -Force .\dfirt.ps1
+	Remove-Item -Recurse -Force .\trident.ps1
+	Remove-Item -Recurse -Force .\Basic-Info
+	Remove-Item -Recurse -Force .\error.txt
+	
+	List-DefaultFolder
+	
+}
+
 
 # Remediation actions
 function Remediate-Item {
