@@ -23,9 +23,11 @@ Commands with arguments after the script has downloaded: `PowerShell -ep bypass 
 
 **Redline Captures**
 
-- RL-Win-Basic: Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users. - collection can take longer depending on how much calculations are needed.
+- RL-Win-Basic: Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users. - Testing Showed +/- 3 minutes of runtime. Collection can take longer depending on how much calculations are needed.
 
-- RL-Win-Mem-Fast: Runs a redline Windows script that gets Memory, Network, Services & Tasks. - collection can take longer depending on how much calculations are needed.
+- RL-Win-Mem-Fast: Runs a redline Windows script that gets Memory, Network, Services & Tasks. - Testing Showed +/- 10 minutes of runtime. Collection can take longer depending on how much calculations are needed.
+
+- RL-Full-Disk: Runs a redline Windows script that gets A full disk enumeration, Network, Services & Tasks, Users, Persistence. - Testing Showed +/- 15 minutes of runtime. Collection can take longer depending on how much calculations are needed.
 
 **Memory Captures**
 

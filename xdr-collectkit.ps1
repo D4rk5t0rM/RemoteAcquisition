@@ -6,14 +6,14 @@ function Get-Version {
     Write-Output "| |__| (_) | | |  __/ (__| |_| . \| | |_  "
     Write-Output " \____\___/|_|_|\___|\___|\__|_|\_\_|\__| "
     Write-Output ""
-	Write-Output "Author: Nicholas Dhaeyer - ndhaeyer@nviso.eu - @DhaeyerWolf"
-    Write-Output "V2022-10-05"
+	Write-Output "Author: Nicholas Dhaeyer - nicholas.dhaeyer@nviso.eu | @DhaeyerWolf"
+    Write-Output "V2024-10-10"
 }
 
 function help {
     <#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-05-25
 	Summary: Gives you the instructions
     #>
@@ -72,7 +72,7 @@ function help {
 function List-DefaultFolder{
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-10-05
 	Summary: Lists the files in the folder C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\Downloads\
 	Usage: 'run collectkit List-DefaultFolder'
@@ -91,7 +91,7 @@ function List-DefaultFolder{
 function RL-Win-Basic {
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-05-25
 	Summary: Runs a Basic Fast redline script for windows: Memory, Network, Services, Tasks, Persitence, Users.
 	Usage: 'PowerShell -ep bypass ./collectkit RL-Win-Basic'
@@ -104,7 +104,7 @@ function RL-Win-Basic {
 function RL-Win-Mem-Fast {
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-05-25
 	Summary: Runs a redline Windows script that gets Memory, Network, Services & Tasks.
 	Usage: 'PowerShell -ep bypass ./collectkit RL-Win-Mem-Fast'
@@ -113,10 +113,22 @@ function RL-Win-Mem-Fast {
 	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Win-Memory-Fast.zip"
 }
 
+function RL-Full-Disk {
+	<#
+    .NOTES
+    Author: nicholas.dhaeyer@nviso.eu
+    Updated: 2024-10-10
+	Summary: Runs a redline Windows script that gets Memory, Network, Services & Tasks.
+	Usage: 'PowerShell -ep bypass ./collectkit RL-Full-Disk'
+    #>
+	
+	Redline -URL "https://github.com/D4rk5t0rM/RemoteAcquisition/raw/main/RedlineCaptures/Redline-Basic+fullDiskEnum.zip"
+}
+
 function Redline([string]$URL) {
     <#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-05-25
 	Summary: Uses redeline A redline script defined in a RL-* command. - Do not run this on it's own
 	Usage: 'PowerShell -ep bypass ./collectkit RL-[Redline Script]'
@@ -145,7 +157,7 @@ function Redline([string]$URL) {
 function Get-Mem {
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-05-23
 	Summary: Gets a Memdump of the host.
 	Usage: 'PowerShell -ep bypass ./collectkit Get-Mem'
@@ -174,7 +186,7 @@ function Get-Mem {
 function Get-Proc {
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-05-25
 	Summary: Dumps a process according to procdump arguments
 	Usage: 'PowerShell -ep bypass ./collectkit Get-Proc [process name/id]'
@@ -204,7 +216,7 @@ function Get-Proc {
 function Get-Extentions {
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-05-23
 	Summary: Gets Lists & gets the user's browser extentions.
 	Usage: 'PowerShell -ep bypass ./collectkit Get-Extentions'
@@ -238,7 +250,7 @@ function Get-Extentions {
 function Get-BrowserFiles {
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-10-05
 	Summary: Gets a ZIP file of all files of a browser on a system
 	Usage: 'PowerShell -ep bypass ./collectkit Get-BrowserFiles'
@@ -266,7 +278,7 @@ function Get-BrowserFiles {
 function Get-Folder {
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-10-05
 	Summary: Gets Lists & gets the user's browser extentions.
 	Usage: PowerShell -ep bypass ./collectkit "Get-Folder '<folderpath>'"
@@ -286,7 +298,7 @@ function Get-Folder {
 function Get-Basic-Info {
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-10-05
 	Summary:- runs a modified version of mamun-sec dfirt tool
 			- runs nov3mb3r's trident tool
@@ -360,7 +372,7 @@ function Get-Basic-Info {
 function Remediate-Item {
 	<#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-09-09
 	Summary: emoves a given file/folder by using 'Remove-Item -Recurse -Force [dir/file]' 
 	Usage: 'PowerShell -ep bypass ./collectkit rm [dir/file]' full path is required
@@ -377,7 +389,7 @@ function Remediate-Item {
 function Rm-Collection {
     <#
     .NOTES
-    Author: ndhaeyer@nviso.eu
+    Author: nicholas.dhaeyer@nviso.eu | @DhaeyerWolf
     Updated: 2022-05-22
 	Summary: Removes the collection file. should be run after the Get-* commands
 	Usage: 'PowerShell -ep bypass ./collectkit Rm-Collection'
